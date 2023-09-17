@@ -1,0 +1,14 @@
+:root {
+    --primary: #86A8E7;
+    --secondary: #7166E2;
+    --tertiary: #7C7997;
+    --text-color: #FFFFFF;
+
+    /*
+        PINK
+            --primary: #DDBAE5;
+            --secondary: #D19ECF;
+            --tertiary: #D5A8D7; --didn't really exist
+            --text-color: #FFFFFF;
+    */
+}

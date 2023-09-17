@@ -1,0 +1,18 @@
+<div id = "page-title">
+    My Projects
+</div>
+<hr style="width:40%; margin:auto; ">
+<div id = "page-content">
+    {{#each projects}}
+    <div class = "project-number">
+        {{number}}
+    </div>
+    <div class = "project-title">
+    <a href="/projects/{{name}}">{{title}}</a>
+    </div>
+    <div class = "project-subtitle">
+    {{subtitle}}
+    </div>
+    <hr>
+    {{/each}}
+</div>

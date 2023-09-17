@@ -1,0 +1,131 @@
+html {
+    background-color: var(--primary);
+    margin: 0px;
+}
+body {
+    margin: 0px;
+    min-width: none;
+}
+#header {
+    margin: 1%;
+    box-shadow: var(--tertiary) 1px 0 10px;
+    background-color: var(--text-color);
+    width: auto;
+    height: min-content;
+    color: var(--primary);
+    padding: 0%;
+    padding-left: 3%;
+    padding-right: 3%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    text-shadow: none;
+}
+#header-title {
+    font-family: 'Rubik', Courier, monospace;
+    font-weight: 800;
+    font-size: 50px;
+    padding: 0%;
+    height: min-content;
+}
+#header-links {
+    font-family: 'Rubik', Courier, monospace;
+    font-size: 25px;
+}
+#header a {
+    color: var(--primary);
+    text-decoration: none;
+    text-shadow: none;
+}
+a {
+    color: var(--text-color);
+    text-decoration: none;
+    text-shadow: var(--tertiary) 1px 0 10px;
+}
+
+
+
+
+
+
+
+/*--------------- STUFF FOR TEMPLATE.HTML---------------*/
+#page-title {
+    font-family: 'Rubik', Courier, monospace;
+    font-weight: 800;
+    font-size: 75px;
+    color:#FFFFFF;
+    text-decoration: none;
+    text-align: center;
+    margin-top: 3%;
+    margin-bottom: 3%;
+    text-shadow: var(--tertiary) 1px 0 10px;
+}
+#page-content {
+    font-family: 'Rubik', Courier, monospace;
+    font-weight: 400;
+    font-size: 35px;
+    color:#FFFFFF;
+    text-decoration: none;
+    text-align: left;
+    margin-top: 3%;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+.project-number {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 600;
+    font-size: 40px;
+    color:#FFFFFF;
+    text-decoration: none;
+    text-align: left;
+}
+.project-title {
+    font-family: 'Rubik', Courier, monospace;
+    font-weight: 800;
+    font-size: 75px;
+    color:#FFFFFF;
+    text-decoration: none;
+    text-align: left;
+}
+.project-subtitle {
+    font-family: 'Rubik', Courier, monospace;
+    font-weight: 400;
+    font-size: 35px;
+    color:#FFFFFF;
+    text-decoration: none;
+    text-align: left;
+}
+hr {
+    border: 1px solid #FFFFFF;
+    width: 10%;
+    margin-left: 0px;
+    box-shadow: var(--tertiary) 1px 0 10px;
+}
+@media screen and (max-width: 800px) {
+    #header-title {
+        width: 0%;
+        font-size: 0px;
+        display: none;
+        visibility: hidden;
+    }
+    #header-links {
+        width: 100%;
+        text-align: center;
+        margin-top: 2%;
+        margin-bottom: 2%;
+    }
+    .project-number {
+        font-size: 20px;
+    }
+    .project-subtitle {
+        font-size: 20px;
+    }
+    .project-title {
+        font-size: 50px;
+    }
+    #page-title {
+        font-size: 50px;
+    }
+}

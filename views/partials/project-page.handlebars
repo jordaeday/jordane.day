@@ -1,0 +1,55 @@
+<style>
+    a {
+        text-decoration: none;
+    }
+    #page-content a {
+        text-decoration: underline;
+    }
+    #page-subtitle a {
+        text-decoration: underline;
+    }
+    #page-title {
+        font-family: 'Rubik', Courier, monospace;
+        font-weight: 800;
+        font-size: 100px;
+        color:#FFFFFF;
+        text-decoration: none;
+        text-align: center;
+        margin-top: 5%;
+        margin-bottom: 4%;
+        letter-spacing: 0.05em;
+    }
+    #page-content {
+        font-family: 'Rubik', Courier, monospace;
+        font-weight: 400;
+        font-size: 35px;
+        color:#FFFFFF;
+        text-decoration: none;
+        text-align: left;
+        margin-top: 3%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+    #page-subtitle {
+        font-size: 30px;
+        font-weight: 600;
+        text-decoration: none;
+        font-family: 'Courier New', Courier, monospace;
+        margin-top: 1%;
+        letter-spacing: normal;
+    }
+    hr {
+        width: 50%;
+        margin: auto;
+    }
+</style>
+<div id = "page-title">
+    <a href="{{page.link}}">{{page.title}}</a>
+    <div id = "page-subtitle">
+        <a href="{{page.link}}">Project Link</a> | {{page.date}}
+    </div>
+</div>
+<hr>
+<div id = "page-content">
+    {{{mdToHTML page.body}}}
+</div>
