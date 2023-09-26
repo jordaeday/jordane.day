@@ -49,6 +49,10 @@ app.get("/resume", (req, res) => {
   res.render("partials/resume", { layout: "index" });
 });
 
+app.get("/public/resume.pdf", (req, res) => {
+  res.sendFile(__dirname + "/public/resume.pdf");
+});
+
 app.get("/projects/:project", (req, res) => {
   let page = "./projects/" + req.params.project + ".md";
   console.log(page);

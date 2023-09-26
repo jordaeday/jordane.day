@@ -103,6 +103,9 @@ hr {
     margin-left: 0px;
     box-shadow: var(--tertiary) 1px 0 10px;
 }
+#links {
+    margin-left: 20%;
+}
 @media screen and (max-width: 800px) {
     #header-title {
         width: 0%;
@@ -127,5 +130,8 @@ hr {
     }
     #page-title {
         font-size: 50px;
+    }
+    #links {
+        margin-left: 15%;
     }
 }
