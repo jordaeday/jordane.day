@@ -13,6 +13,8 @@ const port = 3000;
 
 let webringData: any = null;
 
+let visitCounter = 0;
+
 //Sets our app to use the handlebars engine
 app.set("view engine", "handlebars");
 
@@ -62,7 +64,7 @@ setInterval(() => {
 }, 1000 * 60 * 5);
 
 app.get("/", (req, res) => {
-  res.render("partials/home", { layout: "index", pathname: req.path });
+  res.render("partials/home", { layout: "index", pathname: req.path, visitCounter: visitCounter++ });
 });
 
 app.get("/projects", async (req, res) => {
