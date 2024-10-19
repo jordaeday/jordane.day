@@ -1,0 +1,113 @@
+:root {
+    --background: #11111b;
+    --window: #1e1e2e;
+    --text: #cdd6f4;
+    --link: #f5c2e7;
+    --bar: #313244;
+}
+
+html {
+    background-color: var(--background);
+    font-family: 'Hack', monospace;
+}
+a:not(.sidebar-item a):not(#page-title a) {
+    color: var(--link);
+}
+.sidebar-item a {
+    color: var(--text);
+    text-decoration: none;
+}
+.sidebar-item {
+    padding: 5px;
+}
+.sidebar-item:hover {
+    background-color: var(--bar);
+}
+.window {
+    background-color: var(--window);
+    width: 100%;
+        max-width: 700px;
+        min-width: 100px;
+    height: fit-content;
+    margin: 5% auto;
+    border: 2px solid var(--bar);
+}
+.window *:not(a) {
+    color: var(--text);
+}
+.bar {
+    background-color: var(--bar);
+    height: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 5px;
+}
+.sidebar {
+    max-width: 30%;
+    border-right: 2px solid var(--bar);
+}
+.sidebar * {
+    padding: 5px;
+    text-decoration: none;
+}
+.content {
+    display: flex;
+    flex-direction: row;
+}
+#side-intro {
+    border-bottom: 2px solid var(--bar);
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+}
+#window-buttons {
+    display: flex;
+    margin: 0;
+}
+#window-buttons * {
+    display: flex;
+    margin: 0 5px;
+}
+.main {
+    padding: 15px;
+    width: 100%;
+}
+#page-title {
+    font-size: 2em;
+    font-weight: bold;
+    padding-bottom: 0.5em;
+}
+#page-title * {
+    color: var(--text);
+    text-decoration: none;
+}
+#page-subtitle {
+    font-size: 0.75em;
+    padding-bottom: 0.5em;
+}
+
+#date {
+    font-size: 0.75em;
+}
+
+h1 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 0;
+}
+h2 {
+    font-size: 1.25em;
+    font-weight: bold;
+    margin-top: 0;
+}
+.pixelated {
+    image-rendering: pixelated;
+    text-decoration: none;
+}
+#umass-webring {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 5px;
+}

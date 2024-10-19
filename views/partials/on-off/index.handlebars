@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital@0;1&display=swap");
+        button {
+            font-family: "IBM Plex Mono", monospace;
+            max-width: 880px;
+            font-size: 30px;
+            font-weight: 600;
+            padding: 0 4px 0;
+            background-color: transparent;
+            border-radius: 6px;
+            height: fit-content;
+            color: var(--text);
+            border-color: var(--text);
+            border-width: 3px;
+            border-style: solid;
+        }
+        #game {
+          width: fit-content;
+          margin: auto;
+          background-color: var(--text);
+          border: var(--text) 10px solid;
+          border-radius: 10px;
+        }
+        #buttons {
+          width: fit-content;
+          margin: auto;
+        }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/gh/jamesroutley/24a2/build/engine.js"></script>
+    <script src="/on-off/game.js"></script>
+    <div id = "page-title">
+      On-Off Light Game
+    </div>
+    <div id = "buttons">
+      <button onclick="init(8)">Easy</button>
+      <button onclick="init(12)">Medium</button>
+      <button onclick="init(18)">Hard</button>
+    </div>
+    <br><br>
+    <div id="game"></div>
+  </body>
+</html>
+<script>
+    function init(mode) {
+      size = mode;
+      make(mode);
+    }
+</script>

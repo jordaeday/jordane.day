@@ -1,0 +1,12 @@
+<div id = "page-title">
+    projects
+</div>
+<div id = "page-content">
+    {{#each projects}}
+        <a href="/projects/{{name}}">{{title}}</a>
+    <div class = "projects-subtitle">
+    {{subtitle}}
+    </div>
+    <br>
+    {{/each}}
+</div>

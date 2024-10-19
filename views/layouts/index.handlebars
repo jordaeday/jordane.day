@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/global.css">
+        <link rel='stylesheet' href='//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.css'>
+        <style>
+        </style>
+    </head>
+    <body>
+        <div class = "window">
+            <div class = "bar">
+                <div id = "active-text"> {{{pathname}}} </div>
+                <div id = "window-buttons">
+                    <div style = "color:rgb(243 139 168)">■</div>
+                    <div style = "color:rgb(249 226 175)">■</div>
+                    <div style = "color:rgb(166 227 161)">■</div>
+                </div>
+            </div>
+            <div class = "content">
+                <div class = "sidebar">
+                    <div id = "side-intro"> 
+                        <img src="/piccrew.png" alt="a piccrew profile photo of me" width="100" height="100">
+                        <div id = "intro-text">
+                            jordan day
+                            she/her
+                        </div>
+                    </div>
+                    <div class = "sidebar-item"><a href = "/">home</a></div>
+                    <div class = "sidebar-item"><a href = "/projects">projects</a></div>
+                    <div class = "sidebar-item"><a href = "/contact">contact</a></div>
+                    <div class = "sidebar-item"><a href = "/friends">friends</a></div>
+                </div>
+                <div class = "main">
+                    {{{body}}}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,235 @@
+<html>
+    <head>
+        <style>
+            body {
+                overflow-x: hidden;
+            }
+            html {
+                background-color: #E1E5EE;
+                -ms-overflow-style: none;  /* IE and Edge */
+                scrollbar-width: none;  /* Firefox */
+            }
+            html::-webkit-scrollbar {
+                display: none; /* Chrome, Safari, Opera*/
+            }
+            .box {
+                font-family: 'Inter';
+                font-weight: 500;
+                margin-top: 5%;
+                margin-left: 20%;
+                margin-right: 20%;
+            }
+            .box-heading {
+                background-color: #C7CCDB;
+                color: #71677C;
+                align-items: center;
+                justify-content: space-between;
+                display: flex;
+                padding: 5px;
+                border: solid;
+                border-color: #71677C;
+            }
+            #header {
+                color: #71677C;
+                height: 20%;
+                font-size: 56px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-family: 'Rubik Glitch', Courier, monospace;
+            }
+            #navbar {
+                position: sticky;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #71677C;
+                color: #f0f0f0;
+                font-size: 30px;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                top: 0;
+                font-family: 'Inter';
+                font-weight: 700;
+                width: 100%;
+                padding-left: 8px;
+                padding-right: 8px;
+                margin-left: -8px;
+                margin-right: -8px;
+            }
+            #footer {
+                position: sticky;
+                display: block;
+                float: right;
+                bottom: 5px;
+                right: 5px;
+                color: #71677C;
+                transition: 0.5s ease-in-out;
+                /* animation-name: footer-rotate;
+                animation-duration: 0.5s;
+                animation-direction: alternate; */
+            }
+            .icons {
+                justify-content: right;
+            }
+            a { 
+                text-decoration: none; 
+                color: #f0f0f0;
+                padding-left: 20px;
+            }
+            button {
+                all: unset;
+            }
+            #footer:hover {
+                transform: rotate(-45deg);
+                cursor: pointer;
+            }
+            button:hover {
+                cursor: pointer;
+            }
+            .box-text {
+                color:#453f4c;
+                /* min-height: 10%; */
+                padding: 5px;
+                background-color: inherit;
+                border: solid;
+                border-color: #71677C;
+                border-top: transparent;
+                justify-content: left;
+
+                /* background grid stuff */
+                background-size: 30px 30px;
+                background-image:
+                    linear-gradient(to right, #71677c40 1px, transparent 0px),
+                    linear-gradient(to bottom, #71677c40 1px, transparent 0px);
+                background-position: center;
+            }
+            .minimize-up {
+                max-height: 0px;
+                overflow: hidden;
+                animation-name: minimize-up-animation;
+                animation-duration: 1.5s;
+                animation-direction: alternate;
+                animation-timing-function: linear;
+                min-height: 0;
+                padding: 0;
+                visibility: hidden;
+                animation-delay: -1s;
+            }
+            @keyframes minimize-up-animation {
+                from {
+                    max-height: 100%; 
+                    display: block;
+                    padding: 5px;
+                    visibility: visible;
+                } 
+                85%  {
+                    padding: 5px;
+                }
+                to {
+                    max-height: 0px; 
+                    padding: 0px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    visibility: hidden;
+                }
+            }
+            .minimize-down {
+                max-height: 100%;
+                overflow: hidden;
+                animation-name: minimize-down-animation;
+                animation-duration: 1s;
+                animation-direction: alternate;
+                animation-timing-function: linear;
+                padding: 5px;
+                visibility: show;
+            }
+            @keyframes minimize-down-animation {
+                from {
+                    max-height: 0px; 
+                    padding: 0px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    visibility: visible;
+                }
+                15%  {
+                    padding: 5px;
+                }
+                to {
+                    max-height: 100%;
+                    display: block;
+                    padding: 5px;
+                    visibility: visible;
+                }
+            }
+        </style>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Rubik+Glitch&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />  
+    </head>
+    <body>
+        <div id = header>
+            Jordan Day
+        </div>
+        <div id = navbar>
+            <a href="/">home</a>
+            <a href="/projects">projects</a>
+            <a href="/resume">resume</a>
+            <a href="/about-me">about me</a>
+        </div>
+        <div class = "box" id = "project_1">
+            <div class = "box-heading">
+                i put the project title here - date
+                <div class = icons>
+                    <button onclick="minimize(this)" class="material-symbols-outlined" class="minimize">minimize</button>
+                    <span class="material-symbols-outlined">close</span>
+                </div>
+            </div>
+            <div class = "box-text">
+                and the texty text goes here<br>
+                i describe my project:<br>
+                <ul>
+                    <li>and i might even</li>
+                    <li>list some stuff about it</li>
+                </ul>
+            </div>
+        </div>
+        <div class = "box" id = "project_2">
+            <div class = "box-heading">
+                example project - 5/10/23
+                <div class = icons>
+                    <button onclick="minimize(this)" class="material-symbols-outlined" class="minimize">minimize</button>
+                    <span class="material-symbols-outlined">close</span>
+                </div>
+            </div>
+            <div class = "box-text">
+                i am currently describing my project. 
+                i worked so hard on it and really really 
+                like it so much please say you agree with me.
+                <br> <br>
+                <img id="silly-kitty" src="/silly-kitty.jpg" alt="silly kitty :3" width="300">
+                teehee :3
+                </ul>
+            </div>
+        </div>
+        <div id = footer>
+            <span class="material-symbols-outlined" style = "font-size: 60px;" id="links">add</span>
+        </div>
+    </body>
+</html>
+<script>
+    function minimize(elem) {
+
+        var style = elem.closest(".box").getElementsByClassName("box-text")[0].style;
+        var classList = elem.closest(".box").getElementsByClassName("box-text")[0].classList
+
+        if(classList.contains("minimize-up")) {
+            classList.remove("minimize-up");
+            classList.add("minimize-down"); //idea: copy paste just in reverse :p idk what else
+        } else {
+            classList.add("minimize-up");
+            classList.remove("minimize-down");
+        }
+    }
+</script>
