@@ -64,7 +64,12 @@ setInterval(() => {
 }, 1000 * 60 * 5);
 
 app.get("/", (req, res) => {
-  res.render("partials/home", { layout: "index", pathname: req.path, visitCounter: visitCounter++ });
+  res.render("partials/home", { 
+    layout: "index", 
+    pathname: req.path, 
+    visitCounter: visitCounter++,
+    webring: webringData
+  });
 });
 
 app.get("/projects", async (req, res) => {
@@ -95,7 +100,6 @@ app.get("/friends", async (req, res) => {
       layout: "index", 
       pathname: req.path,
       badges: badges,
-      webring: webringData
     });
   } catch (err) {
     res.status(500).render("partials/500", { layout : "index", pathname: req.path });
