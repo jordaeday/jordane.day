@@ -129,6 +129,10 @@ app.get("/projects/websites/website2", (req, res) => {
   res.sendFile(__dirname + "/public/websites/website2.html");
 });
 
+app.get("/projects/websites/website3", (req, res) => {
+  res.sendFile(__dirname + "/public/websites/website3.html");
+});
+
 app.get("/projects/on-off/play", (req, res) => {
   res.render("partials/on-off/index", { layout: "index", pathname: req.path });
 });

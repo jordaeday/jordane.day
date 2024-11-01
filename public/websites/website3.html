@@ -1,0 +1,136 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            html {
+                background-color: var(--primary);
+                margin: 0px;
+                padding: 0px;
+                background-image: linear-gradient(to left bottom, #7166e2, #6f74e6, #6f81e8, #728de9, #7999e9, #7e9ae1, #839ada, #879bd2, #8692c3, #8489b4, #8181a5, #7c7997);
+            }
+            body {
+                margin: 0px;
+                color: #FFFFFF;
+                /* background-color: var(--primary); */
+            }
+            #home-top {
+                backdrop-filter: blur(5px);
+                color: var(--text-color);
+                text-align: center;
+                height: 100%;
+                text-shadow: var(--tertiary) 1px 0 10px;
+            }
+            #home-title {
+                font-family: 'Rubik Glitch', Courier, monospace;
+                font-size: 200px;
+                padding-top: 2%;
+                color: var(--text-color);
+            }
+            #home-subtitle {
+                font-family: 'Rubik', Courier, monospace;
+                font-weight: 800;
+                font-size: 50px;
+                margin-top: -13%;
+            }
+            @media screen and (max-width: 800px) {
+                #home-title {
+                    font-size: 100px;
+                }
+                #home-subtitle {
+                    font-size: 25px;
+                    margin-top: 0;
+                }
+                .home-bottom-content {
+                    font-size: 20px;
+                }
+                .home-bottom-title {
+                    font-size: 50px;
+                }
+            }
+            #home-bottom {
+                height: fit-content;
+                /* background: linear-gradient(360deg, #D19ECF 13.42%, #D5A8D7 39.38%, #DDBAE5 100%); */
+                backdrop-filter: blur(5px);
+                padding-top: 5%;
+            }
+            .home-bottom-title {
+                font-family: 'Rubik', Courier, monospace;
+                font-weight: 800;
+                font-size: 75px;
+                color:#FFFFFF;
+                text-decoration: underline;
+                text-shadow: var(--tertiary) 1px 0 10px;
+            }
+            .home-bottom-content {
+                font-family: 'Rubik', Courier, monospace;
+                font-weight: 400;
+                font-size: 35px;
+                color:#FFFFFF;
+                text-decoration: none;
+            }
+            #about-me {
+                text-align: left;
+                margin-top: 5%;
+                margin-left: 5%;
+            }
+            #projects {
+                text-align: right;
+                margin-right: 5%;
+                margin-top: -3%;
+            }
+            #resume {
+                text-align: left;
+                margin-left: 5%;
+                margin-top: -6%;
+            }
+            a {
+                color: #FFFFFF;
+                text-decoration: none;
+            }
+        </style>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Rubik+Glitch&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />  
+        <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;800&display=swap" rel="stylesheet">
+    </head>
+    <body class = "homepage">
+        <div id="home-top">
+            <div id = "home-title">
+                <p>Jordan Day</p>
+            </div>
+            <div id = "home-subtitle">
+                <p><a href="/about">about me</a> | <a href="/projects">projects</a> | <a href="/resume">resume</a>
+                </p>
+            </div>
+        </div>
+        <div id="home-bottom">
+            <div class = "home-bottom-title" id = "about-me">
+                <a href="/about">about me</a>
+            </div>
+            <div class = "home-bottom-content" style="margin-left: 5%;">
+                <ul>
+                    <li>student at UMass Amherst</li>
+                    <li>computer science major</li>
+                    <li>linguistics minor</li>
+                    <li>web design enthusiast</li>
+                    <li>cat enjoyer</li>
+                </ul>
+            </div>
+            <div class = "home-bottom-title" id = "projects">
+                <a href="/projects">projects</a>
+            </div>
+            <div class = "home-bottom-content" style="text-align:right; margin-right: 5%;">
+                <p>take a peek at my projects <a href = "/projects" style = "font-weight: 600;">here</a><br>
+                i've done stuff in crystal, java, <br>
+                javascript, and of course HTML and CSS!</p>
+            </div>
+            <div class = "home-bottom-title" id = "resume">
+                <a href="/resume">resume</a>
+            </div>
+            <div class = "home-bottom-content" style="margin-left: 5%;">
+                <p>i've done some pretty cool stuff. <br>
+                    check out my creds on my <a href = "/resume" style = "font-weight: 600;">resume</a>!</p>
+        </div>
+    </body>
+</html>
