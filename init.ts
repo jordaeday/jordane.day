@@ -151,6 +151,10 @@ app.get("/projects/bouba-kiki/get", async (req, res) => {
   }
 });
 
+app.get("/api/message", (req, res) => {
+  res.json({ message: "Hello, World!" });
+});
+
 app.use((req, res, next) => {
   res.status(404).render("partials/404", { layout: "index", pathname: req.path });
 });
