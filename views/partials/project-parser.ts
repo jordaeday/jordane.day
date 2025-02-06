@@ -39,9 +39,12 @@ function init(filepath : string) {
     let date_end = meta_text.indexOf("\n", date_start);
     let date = meta_text.substring(date_start, date_end);
 
-    let link_start = meta_text.indexOf("link: ") + 6;
-    let link_end = meta_text.indexOf("\n", link_start);
-    let link = meta_text.substring(link_start, link_end);
+    let link = "";
+    if (meta_text.indexOf("link: ") !== -1) {
+        let link_start = meta_text.indexOf("link: ") + 6;
+        let link_end = meta_text.indexOf("\n", link_start);
+        link = meta_text.substring(link_start, link_end);
+    }
 
     let body_start = meta_end + 3;
     let body = filetext.substring(body_start);
@@ -52,7 +55,7 @@ function init(filepath : string) {
         number: number,
         subtitle: subtitle,
         date: date,
-        link: link,
+        link: link === "" ? undefined : link,
         body: body,
     };
 

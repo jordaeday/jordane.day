@@ -84,6 +84,17 @@ app.get("/projects", async (req, res) => {
   });
 });
 
+app.get("/blog", async (req, res) => {
+  let posts = await renderCards("./blog/");
+  res.render("partials/blog", {
+    layout: "index", 
+    pathname: req.path,
+    posts: posts.sort((a, b) => {
+      return parseInt(b.number) - parseInt(a.number);
+    }),
+  });
+});
+
 app.get("/contact", (req, res) => {
   res.render("partials/contact", { layout: "index", pathname: req.path });
 });
@@ -119,6 +130,20 @@ app.get("/projects/:project", (req, res) => {
     res.status(404).render("partials/404", { layout : "index", pathname: req.path });
   }
 
+});
+
+app.get("/blog/:post", (req, res) => {
+  let page = "./blog/" + req.params.post + ".md";
+  //console.log(page);
+  try {
+    res.render("partials/blog-post", { 
+      layout: "index",
+      pathname: req.path,
+      page: renderPage(page), 
+    });
+  } catch (err) {
+    res.status(404).render("partials/404", { layout : "index", pathname: req.path });
+  }
 });
 
 app.get("/projects/websites/website1", (req, res) => {

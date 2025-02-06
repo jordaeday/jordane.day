@@ -1,0 +1,13 @@
+<div id = "page-title">
+    <a href="{{page.link}}">{{page.title}}</a>
+    <div id = "page-subtitle">
+        {{#if page.link}}
+            <a href="{{page.link}}">blog link</a>
+            <br>
+        {{/if}}
+        <div id = "date">{{page.date}}</div>
+    </div>
+</div>
+<div id = "page-content">
+    {{{mdToHTML page.body}}}
+</div>

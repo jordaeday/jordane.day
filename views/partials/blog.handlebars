@@ -1,0 +1,12 @@
+<div id = "page-title">
+    blog
+</div>
+<div id = "page-content">
+    {{#each posts}}
+        <a href="/blog/{{name}}">{{title}}</a> - {{date}}
+    <div class = "blog-subtitle">
+    {{subtitle}}
+    </div>
+    <br>
+    {{/each}}
+</div>
