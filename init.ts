@@ -99,8 +99,9 @@ app.get("/contact", (req, res) => {
   res.render("partials/contact", { layout: "index", pathname: req.path });
 });
 
-app.get("/public/resume.pdf", (req, res) => {
-  res.sendFile(__dirname + "/public/resume.pdf");
+app.get("/public/:file", (req, res) => {
+  const file = req.params.file;
+  res.sendFile(__dirname + "/public/" + file);
 });
 
 app.get("/friends", async (req, res) => {
