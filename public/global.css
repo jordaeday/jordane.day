@@ -26,7 +26,7 @@ a:not(.sidebar-item a):not(#page-title a) {
 .window {
     background-color: var(--window);
     width: 100%;
-        max-width: 700px;
+        max-width: 1000px;
         min-width: 100px;
     height: fit-content;
     margin: 5% auto;
@@ -118,4 +118,40 @@ h2 {
         align-items: center;
         padding: 10px 5px;
     }
+}
+
+/* Code block styling - horizontal scroll instead of overflow */
+pre {
+    overflow-x: auto;
+    white-space: pre;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+}
+
+pre code {
+    display: block;
+    padding: 1em;
+    overflow-x: auto;
+    white-space: pre;
+    width: auto;
+}
+
+/* For inline code */
+code {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Ensure code blocks don't break out of their containers */
+.main {
+    min-width: 0; /* Allow shrinking */
+    overflow-x: hidden; /* Prevent main content from overflowing */
+}
+
+.main pre {
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 1em 0;
+    width: calc(100% - 30px); /* Account for main padding */
 }

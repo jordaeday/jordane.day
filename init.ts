@@ -2,11 +2,20 @@ import express from "express";
 import * as fs from "fs";
 import { engine } from "express-handlebars";
 import { renderCards, renderPage } from "./views/partials/project-parser";
-import { marked } from "marked";
+import { Marked } from "marked";
+import { markedHighlight } from "marked-highlight";
+import hljs from 'highlight.js/lib/core';
+import x86asm from 'highlight.js/lib/languages/x86asm';
+import python from 'highlight.js/lib/languages/python';
+import plaintext from 'highlight.js/lib/languages/plaintext';
+
+hljs.registerLanguage('x86asm', x86asm as any);
+hljs.registerLanguage('python', python as any);
+hljs.registerLanguage('plaintext', plaintext as any);
+
 import { calc_bk } from "./bouba-kiki/bouba-kiki";
 import csvParser from "csv-parser";
 import fetch from "node-fetch";
-
 
 const app = express();
 const port = 3000;
@@ -14,6 +23,17 @@ const port = 3000;
 let webringData: any = null;
 
 let visitCounter = 0;
+
+const marked = new Marked(
+  markedHighlight({
+	emptyLangClass: 'hljs',
+    langPrefix: 'hljs language-',
+    highlight(code, lang, info) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+      return hljs.highlight(code, { language }).value;
+    }
+  })
+);
 
 //Sets our app to use the handlebars engine
 app.set("view engine", "handlebars");
@@ -24,7 +44,7 @@ app.engine(
   engine({
     layoutsDir: __dirname + "/views/layouts",
     helpers: {
-      mdToHTML(arg) {
+      mdToHTML(arg: string) {
         return marked.parse(arg);
       }
     }

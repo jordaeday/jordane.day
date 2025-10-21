@@ -68,7 +68,8 @@ async function renderCards(dirpath : string) {
     let filePaths : string[];
     let metaArray : Metadata[] = [];
 
-    //console.log(dirpath)
+    // Server-side code shouldn't attempt to call highlightAll() (DOM API).
+    // Syntax highlighting is performed during Markdown rendering (see init.ts).
 
     const fileNames = await readdir( dirpath ); // returns a JS array of just short/local file-names, not paths.
     filePaths = fileNames.map( fn => join( dirpath, fn ) );
