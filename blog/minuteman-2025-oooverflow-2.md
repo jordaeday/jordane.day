@@ -6,6 +6,7 @@ subtitle: writeup for a stack-based buffer overflow
 date: 10/20/25
 ---
 # Minuteman CTF 2025 Oooverflow-2
+UPDATE: this writeup won the writeup challenge hosted by Minuteman CTF!
 ## Problem Overview
 The main function in this problem is very simple - it is just printed out text with a prompt for a response that gets copied into a buffer. However, looking at the source code, we can see that theres's a super convenient function called `winner` that checks to see if both arguments `a = 0xcafebabe` and `b = deadbeef`. If they don't, the function returns.
 ## The Vulnerability
