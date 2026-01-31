@@ -22,6 +22,9 @@ const port = 3000;
 
 let webringData: any = null;
 
+// Add JSON body parsing for API routes
+app.use(express.json({ limit: '50mb' })); // Increase limit for base64 attachments
+
 let visitCounter = 0;
 
 const marked = new Marked(
@@ -34,6 +37,85 @@ const marked = new Marked(
     }
   })
 );
+
+// ============================================
+// Moon Server Utilities
+// ============================================
+
+// Convert path to ID (e.g., "folder/doc.md" -> "folder-doc")
+const pathToId = (path: string): string => {
+  return path
+    .replace(/\.md$/i, '') // Remove .md extension
+    .replace(/\//g, '-')    // Replace slashes with dashes
+    .replace(/[^a-zA-Z0-9-_]/g, '-') // Replace special chars with dashes
+    .replace(/-+/g, '-')    // Collapse multiple dashes
+    .replace(/^-|-$/g, ''); // Remove leading/trailing dashes
+};
+
+// API Key middleware
+const checkApiKey = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const apiKey = req.headers['x-api-key'];
+  const expectedKey = process.env.MOON_API_KEY;
+  
+  if (!expectedKey) {
+    return res.status(500).json({ error: 'Server configuration error: API key not set' });
+  }
+  
+  if (!apiKey || apiKey !== expectedKey) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid or missing API key' });
+  }
+  
+  next();
+};
+
+// File storage functions
+const COMPENDIUM_DATA_DIR = './compendium/data';
+const COMPENDIUM_ATTACHMENTS_DIR = './compendium/attachments';
+
+const savePublishedData = async (id: string, data: any): Promise<void> => {
+  const filePath = `${COMPENDIUM_DATA_DIR}/${id}.json`;
+  await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  
+  // Extract attachments if present
+  if (data.attachments && Object.keys(data.attachments).length > 0) {
+    const attachmentDir = `${COMPENDIUM_ATTACHMENTS_DIR}/${id}`;
+    await fs.promises.mkdir(attachmentDir, { recursive: true });
+    
+    for (const [filename, base64Data] of Object.entries(data.attachments)) {
+      const buffer = Buffer.from(base64Data as string, 'base64');
+      await fs.promises.writeFile(`${attachmentDir}/${filename}`, buffer);
+    }
+  }
+};
+
+const loadPublishedData = async (id: string): Promise<any | null> => {
+  try {
+    const filePath = `${COMPENDIUM_DATA_DIR}/${id}.json`;
+    const content = await fs.promises.readFile(filePath, 'utf-8');
+    return JSON.parse(content);
+  } catch (err) {
+    return null;
+  }
+};
+
+const deletePublishedData = async (id: string): Promise<void> => {
+  const filePath = `${COMPENDIUM_DATA_DIR}/${id}.json`;
+  const attachmentDir = `${COMPENDIUM_ATTACHMENTS_DIR}/${id}`;
+  
+  // Delete JSON file
+  try {
+    await fs.promises.unlink(filePath);
+  } catch (err) {
+    // Ignore if file doesn't exist
+  }
+  
+  // Delete attachments directory
+  try {
+    await fs.promises.rm(attachmentDir, { recursive: true, force: true });
+  } catch (err) {
+    // Ignore if directory doesn't exist
+  }
+};
 
 //Sets our app to use the handlebars engine
 app.set("view engine", "handlebars");
@@ -51,6 +133,29 @@ app.engine(
   })
 );
 app.use(express.static("public"));
+
+// ============================================
+// Subdomain Routing Middleware
+// ============================================
+
+// Check if request is for compendium subdomain
+app.use((req, res, next) => {
+  const hostname = req.hostname || req.get('host')?.split(':')[0] || '';
+  
+  if (hostname.includes('compendium')) {
+    // Mark this as a compendium request
+    (req as any).isCompendium = true;
+  }
+  next();
+});
+
+// Serve static attachments on compendium subdomain
+app.use((req, res, next) => {
+  if ((req as any).isCompendium && req.path.startsWith('/attachments/')) {
+    return express.static('compendium')(req, res, next);
+  }
+  next();
+});
 
 // Function to read and parse the badges CSV file
 const parseBadgesCSV = (filePath: string): Promise<any[]> => {
@@ -197,8 +302,155 @@ app.get("/projects/bouba-kiki/get", async (req, res) => {
   }
 });
 
-app.get("/api/message", (req, res) => {
-  res.json({ message: "Hello, World!" });
+// ============================================
+// Moon Server API Endpoints
+// ============================================
+
+// GET /api/moon/detail/:id - Get published data by ID
+app.get("/api/moon/detail/:id", checkApiKey, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = await loadPublishedData(id);
+    
+    if (!data) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    
+    res.json(data);
+  } catch (err) {
+    console.error('Error getting detail:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/moon/publish - Publish new data
+app.post("/api/moon/publish", checkApiKey, async (req, res) => {
+  try {
+    const { name, path, metadata, content, attachments } = req.body;
+    
+    // Validate required fields
+    if (!name || !path || !metadata || content === undefined) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: name, path, metadata, content' 
+      });
+    }
+    
+    // Generate ID from path
+    const id = pathToId(path);
+    
+    // Check if ID already exists
+    const existing = await loadPublishedData(id);
+    if (existing) {
+      return res.status(409).json({ 
+        error: 'Item already exists. Use POST /api/moon/publish/:id to update.' 
+      });
+    }
+    
+    // Save data
+    const publishData = { name, path, metadata, content, attachments: attachments || {} };
+    await savePublishedData(id, publishData);
+    
+    res.json({ id, success: true });
+  } catch (err) {
+    console.error('Error publishing:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/moon/publish/:id - Republish/update existing data
+app.post("/api/moon/publish/:id", checkApiKey, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { name, path, metadata, content, attachments } = req.body;
+    
+    // Validate required fields
+    if (!name || !path || !metadata || content === undefined) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: name, path, metadata, content' 
+      });
+    }
+    
+    // Save/update data
+    const publishData = { name, path, metadata, content, attachments: attachments || {} };
+    await savePublishedData(id, publishData);
+    
+    res.json({ id, success: true });
+  } catch (err) {
+    console.error('Error republishing:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/moon/unpublish/:id - Remove published item
+app.post("/api/moon/unpublish/:id", checkApiKey, async (req, res) => {
+  try {
+    const id = req.params.id;
+    
+    // Check if item exists
+    const existing = await loadPublishedData(id);
+    if (!existing) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    
+    // Delete data
+    await deletePublishedData(id);
+    
+    // Return with null id per spec
+    res.json({ id: null, success: true });
+  } catch (err) {
+    console.error('Error unpublishing:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================
+// Compendium Content Routes (on subdomain)
+// ============================================
+
+// Catch-all route for compendium subdomain - must be before 404
+app.get("*", async (req, res, next) => {
+  // Only handle compendium subdomain requests
+  if (!(req as any).isCompendium) {
+    return next();
+  }
+  
+  try {
+    // Remove leading slash and .md extension if present
+    let requestPath = req.path.slice(1);
+    if (!requestPath || requestPath === '') {
+      requestPath = 'index';
+    }
+    
+    // Convert path to ID
+    const id = pathToId(requestPath);
+    
+    // Try to load the published data
+    const data = await loadPublishedData(id);
+    
+    if (!data) {
+      return res.status(404).render("partials/404", { 
+        layout: "index", 
+        pathname: req.path 
+      });
+    }
+    
+    // Render using blog-post template
+    res.render("partials/blog-post", { 
+      layout: "index",
+      pathname: req.path,
+      page: {
+        title: data.name,
+        content: marked.parse(data.content),
+        metadata: data.metadata
+      }
+    });
+  } catch (err) {
+    console.error('Error rendering compendium page:', err);
+    res.status(500).render("partials/500", { 
+      layout: "index", 
+      pathname: req.path 
+    });
+  }
 });
 
 app.use((req, res, next) => {
