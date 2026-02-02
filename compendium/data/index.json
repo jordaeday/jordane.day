@@ -1,0 +1,10 @@
+{
+  "name": "Test Document",
+  "path": "index.md",
+  "metadata": {
+    "category": "test",
+    "tags": ["example", "compendium"]
+  },
+  "content": "# Hello from Compendium!\n\nThis is a test document served from the compendium subdomain.",
+  "attachments": {}
+}

@@ -138,24 +138,67 @@ app.use(express.static("public"));
 // Subdomain Routing Middleware
 // ============================================
 
-// Check if request is for compendium subdomain
-app.use((req, res, next) => {
+// Create a router for compendium subdomain
+const compendiumRouter = express.Router();
+
+// Middleware to check if hostname is compendium subdomain
+const isCompendiumSubdomain = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const hostname = req.hostname || req.get('host')?.split(':')[0] || '';
   
-  if (hostname.includes('compendium')) {
-    // Mark this as a compendium request
-    (req as any).isCompendium = true;
+  if (!hostname.includes('compendium')) {
+    return res.status(404).render("partials/404", { layout: "index", pathname: req.path });
   }
+  
+  // Found compendium subdomain, proceed
   next();
+};
+
+// Serve attachments on compendium subdomain
+compendiumRouter.use('/attachments', express.static('compendium/attachments'));
+
+// Compendium page routing
+compendiumRouter.get("*", async (req, res) => {
+  try {
+    // Remove leading slash and .md extension if present
+    let requestPath = req.path.slice(1);
+    if (!requestPath || requestPath === '') {
+      requestPath = 'index';
+    }
+    
+    // Convert path to ID
+    const id = pathToId(requestPath);
+    
+    // Load the published data
+    const data = await loadPublishedData(id);
+    
+    // Data not found
+    if (!data) {
+      return res.status(404).render("partials/404", { 
+        layout: "index", 
+        pathname: req.path 
+      });
+    }
+    
+    // Render using compendium-page template
+    res.render("partials/compendium-page", { 
+      layout: "index",
+      pathname: req.path,
+      page: {
+        title: data.name,
+        body: data.content,
+        metadata: data.metadata
+      }
+    });
+  } catch (err) {
+    res.status(500).render("partials/500", { 
+      layout: "index", 
+      pathname: req.path 
+    });
+  }
 });
 
-// Serve static attachments on compendium subdomain
-app.use((req, res, next) => {
-  if ((req as any).isCompendium && req.path.startsWith('/attachments/')) {
-    return express.static('compendium')(req, res, next);
-  }
-  next();
-});
+// Apply compendium router with subdomain check
+app.use(isCompendiumSubdomain, compendiumRouter);
 
 // Function to read and parse the badges CSV file
 const parseBadgesCSV = (filePath: string): Promise<any[]> => {
@@ -400,56 +443,6 @@ app.post("/api/moon/unpublish/:id", checkApiKey, async (req, res) => {
   } catch (err) {
     console.error('Error unpublishing:', err);
     res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// ============================================
-// Compendium Content Routes (on subdomain)
-// ============================================
-
-// Catch-all route for compendium subdomain - must be before 404
-app.get("*", async (req, res, next) => {
-  // Only handle compendium subdomain requests
-  if (!(req as any).isCompendium) {
-    return next();
-  }
-  
-  try {
-    // Remove leading slash and .md extension if present
-    let requestPath = req.path.slice(1);
-    if (!requestPath || requestPath === '') {
-      requestPath = 'index';
-    }
-    
-    // Convert path to ID
-    const id = pathToId(requestPath);
-    
-    // Try to load the published data
-    const data = await loadPublishedData(id);
-    
-    if (!data) {
-      return res.status(404).render("partials/404", { 
-        layout: "index", 
-        pathname: req.path 
-      });
-    }
-    
-    // Render using blog-post template
-    res.render("partials/blog-post", { 
-      layout: "index",
-      pathname: req.path,
-      page: {
-        title: data.name,
-        content: marked.parse(data.content),
-        metadata: data.metadata
-      }
-    });
-  } catch (err) {
-    console.error('Error rendering compendium page:', err);
-    res.status(500).render("partials/500", { 
-      layout: "index", 
-      pathname: req.path 
-    });
   }
 });
 
