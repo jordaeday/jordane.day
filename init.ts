@@ -38,9 +38,9 @@ const marked = new Marked(
   })
 );
 
-// ============================================
-// Moon Server Utilities
-// ============================================
+/**
+ *  MOON SERVER UTILITIES
+ */
 
 // Convert path to ID (e.g., "folder/doc.md" -> "folder-doc")
 const pathToId = (path: string): string => {
@@ -134,9 +134,9 @@ app.engine(
 );
 app.use(express.static("public"));
 
-// ============================================
-// Subdomain Routing Middleware
-// ============================================
+/**
+ *  SUBDOMAIN ROUTING (COMPENDIUM)
+ */
 
 // Create a router for compendium subdomain
 const compendiumRouter = express.Router();
@@ -199,6 +199,10 @@ compendiumRouter.get("*", async (req, res) => {
 
 // Apply compendium router with subdomain check
 app.use(isCompendiumSubdomain, compendiumRouter);
+
+/**
+ *  MAIN DOMAIN ROUTING
+ */
 
 // Function to read and parse the badges CSV file
 const parseBadgesCSV = (filePath: string): Promise<any[]> => {
@@ -345,9 +349,9 @@ app.get("/projects/bouba-kiki/get", async (req, res) => {
   }
 });
 
-// ============================================
-// Moon Server API Endpoints
-// ============================================
+/**
+ *  MOON SERVER API ROUTES
+ */
 
 // GET /api/moon/detail/:id - Get published data by ID
 app.get("/api/moon/detail/:id", checkApiKey, async (req, res) => {
@@ -450,4 +454,7 @@ app.use((req, res, next) => {
   res.status(404).render("partials/404", { layout: "index", pathname: req.path });
 });
 
+/**
+ *  START SERVER
+ */
 app.listen(port, () => console.log(`App listening to port ${port}`));
