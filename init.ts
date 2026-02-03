@@ -1,5 +1,6 @@
 import express from "express";
 import * as fs from "fs";
+import path from "path";
 import { engine } from "express-handlebars";
 import { renderCards, renderPage } from "./views/partials/project-parser";
 import { Marked } from "marked";
@@ -16,6 +17,7 @@ hljs.registerLanguage('plaintext', plaintext as any);
 import { calc_bk } from "./bouba-kiki/bouba-kiki";
 import csvParser from "csv-parser";
 import fetch from "node-fetch";
+import { processAttachments } from "./compendium/process-data";
 
 const app = express();
 const port = 3000;
@@ -73,19 +75,23 @@ const COMPENDIUM_DATA_DIR = './compendium/data';
 const COMPENDIUM_ATTACHMENTS_DIR = './compendium/attachments';
 
 const savePublishedData = async (id: string, data: any): Promise<void> => {
-  const filePath = `${COMPENDIUM_DATA_DIR}/${id}.json`;
-  await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
-  
   // Extract attachments if present
   if (data.attachments && Object.keys(data.attachments).length > 0) {
-    const attachmentDir = `${COMPENDIUM_ATTACHMENTS_DIR}/${id}`;
-    await fs.promises.mkdir(attachmentDir, { recursive: true });
-    
+    const storedAttachments: Record<string,{ id: string; size: number }> = {};
+
     for (const [filename, base64Data] of Object.entries(data.attachments)) {
-      const buffer = Buffer.from(base64Data as string, 'base64');
-      await fs.promises.writeFile(`${attachmentDir}/${filename}`, buffer);
+      const attachmentId = await processAttachments(base64Data as string);
+      storedAttachments[filename] = attachmentId;
     }
+
+    // Replace raw attachments with ID references
+    data.attachments = storedAttachments;
   }
+
+  const filePath = path.join(COMPENDIUM_DATA_DIR, `${id}.json`);
+  await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+
 };
 
 const loadPublishedData = async (id: string): Promise<any | null> => {
@@ -116,6 +122,10 @@ const deletePublishedData = async (id: string): Promise<void> => {
     // Ignore if directory doesn't exist
   }
 };
+
+/**
+ *  TEMPLATING ENGINE SETUP
+ */
 
 //Sets our app to use the handlebars engine
 app.set("view engine", "handlebars");
