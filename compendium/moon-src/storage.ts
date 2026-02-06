@@ -29,18 +29,28 @@ export function publishItem(id: number | undefined, item: MoonItem): number {
   const index = loadIndex();
 
   const finalId = id ?? index.nextId++;
-  const itemDir = path.join(ROOT_DIR, item.path.replace(/\/[^\/]+$/, ""));
-  ensureDir(itemDir);
-
-  const fullPath = path.join(ROOT_DIR, item.path);
-
-  // Write main content
+  
+  // Save to compendium/data/ directory
+  const fullPath = path.join(ROOT_DIR, "data", item.path);
+  
+  // Create directory structure
   ensureDir(path.dirname(fullPath));
-  fs.writeFileSync(fullPath, item.content, "utf-8");
+  
+  // Write main content as JSON (or plaintext if markdown)
+  // If it's a markdown file, store it as markdown
+  // If it's supposed to be JSON metadata, convert accordingly
+  if (item.path.endsWith('.json')) {
+    fs.writeFileSync(fullPath, JSON.stringify(item, null, 2), "utf-8");
+  } else {
+    // For .md files, save as JSON with the full item structure
+    const jsonPath = fullPath.replace(/\.[^.]+$/, '.json');
+    fs.writeFileSync(jsonPath, JSON.stringify(item, null, 2), "utf-8");
+  }
 
-  // Attachments
-  if (item.attachments) {
-    const attachmentDir = `${fullPath}.attachments`;
+  // Attachments - only create if there are actually attachments
+  if (item.attachments && Object.keys(item.attachments).length > 0) {
+    // Store attachments in compendium/attachments/{id}/
+    const attachmentDir = path.join(ROOT_DIR, "attachments", String(finalId));
     ensureDir(attachmentDir);
 
     for (const [name, base64] of Object.entries(item.attachments)) {
@@ -48,7 +58,9 @@ export function publishItem(id: number | undefined, item: MoonItem): number {
     }
   }
 
-  index.items[finalId] = fullPath;
+  // Store the path to the JSON file in the index
+  const jsonPath = item.path.endsWith('.json') ? fullPath : fullPath.replace(/\.[^.]+$/, '.json');
+  index.items[finalId] = jsonPath;
   saveIndex(index);
 
   return finalId;
@@ -59,8 +71,12 @@ export function getItem(id: number): StoredMoonItem | null {
   const fullPath = index.items[id];
   if (!fullPath || !fs.existsSync(fullPath)) return null;
 
-  const content = fs.readFileSync(fullPath, "utf-8");
-  const attachmentDir = `${fullPath}.attachments`;
+  // Read the JSON file
+  const jsonContent = fs.readFileSync(fullPath, "utf-8");
+  const itemData = JSON.parse(jsonContent);
+  
+  // Attachments are stored in compendium/attachments/{id}/
+  const attachmentDir = path.join(ROOT_DIR, "attachments", String(id));
 
   let attachments: Record<string, string> | undefined;
   if (fs.existsSync(attachmentDir)) {
@@ -73,11 +89,11 @@ export function getItem(id: number): StoredMoonItem | null {
 
   return {
     id,
-    name: path.basename(fullPath),
-    path: path.relative(ROOT_DIR, fullPath),
-    metadata: {},
-    content,
-    attachments,
+    name: itemData.name,
+    path: itemData.path,
+    metadata: itemData.metadata || {},
+    content: itemData.content,
+    attachments: attachments || itemData.attachments || {},
   };
 }
 
@@ -86,11 +102,15 @@ export function unpublishItem(id: number): boolean {
   const fullPath = index.items[id];
   if (!fullPath) return false;
 
+  // Delete the JSON file
   if (fs.existsSync(fullPath)) {
     fs.rmSync(fullPath, { force: true });
   }
-  if (fs.existsSync(`${fullPath}.attachments`)) {
-    fs.rmSync(`${fullPath}.attachments`, { recursive: true, force: true });
+  
+  // Delete attachments from compendium/attachments/{id}/
+  const attachmentDir = path.join(ROOT_DIR, "attachments", String(id));
+  if (fs.existsSync(attachmentDir)) {
+    fs.rmSync(attachmentDir, { recursive: true, force: true });
   }
 
   delete index.items[id];
@@ -104,6 +124,12 @@ export function getItemByPath(requestPath: string) {
   const normalized = requestPath.endsWith(".json")
     ? requestPath
     : `${requestPath}.json`;
+
+  // Special case for index.json to serve the root index data
+  if (normalized === "index.json") {
+    const content = fs.readFileSync('compendium/data/index.json', "utf-8");
+    return JSON.parse(content);
+  }
 
   for (const [id, fullPath] of Object.entries(index.items)) {
     if (fullPath.endsWith(normalized)) {

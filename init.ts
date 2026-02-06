@@ -20,6 +20,7 @@ import csvParser from "csv-parser";
 import fetch from "node-fetch";
 import { MoonItem } from "./compendium/moon-src/types";
 import { publishItem, getItem, unpublishItem, getItemByPath } from "./compendium/moon-src/storage";
+import { publicPathToLogicalPath } from "./compendium/moon-src/resolvers";
 
 const app = express();
 const port = 3000;
@@ -30,6 +31,13 @@ let webringData: any = null;
 app.use(express.json({ limit: '50mb' })); // Increase limit for base64 attachments
 
 let visitCounter = 0;
+
+// Log all incoming requests [debug]
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  //console.log(req.headers);
+  next();
+});
 
 const marked = new Marked(
   markedHighlight({
@@ -112,18 +120,6 @@ app.use(express.static("public"));
 // Create a router for compendium subdomain
 const compendiumRouter = express.Router();
 
-// Middleware to check if hostname is compendium subdomain
-const isCompendiumSubdomain = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const hostname = req.hostname || req.get('host')?.split(':')[0] || '';
-  
-  if (!hostname.includes('compendium')) {
-    return res.status(404).render("partials/404", { layout: "index", pathname: req.path });
-  }
-  
-  // Found compendium subdomain, proceed
-  next();
-};
-
 // Serve attachments on compendium subdomain
 compendiumRouter.use('/attachments', express.static('compendium/attachments'));
 
@@ -135,12 +131,22 @@ compendiumRouter.get("*", async (req, res) => {
     if (!requestPath || requestPath === '') {
       requestPath = 'index';
     }
+
+    console.log(`[Compendium Route] Request path: ${req.path}`);
+    console.log(`[Compendium Route] Request path (no slash): ${requestPath}`);
+
+    const logicalPath = publicPathToLogicalPath(requestPath);
+    
+    console.log(`[Compendium Route] Logical path: ${logicalPath}`);
     
     // Load the published data
-    const data = await getItemByPath(requestPath);
+    const data = await getItemByPath(logicalPath);
+
+    console.log(`[Compendium Route] Data result:`, data ? 'found' : 'not found');
     
     // Data not found
     if (!data) {
+      console.warn(`[Compendium Route] No data found for path: ${requestPath} (logical: ${logicalPath})`);
       return res.status(404).render("partials/404", { 
         layout: "index", 
         pathname: req.path 
@@ -158,6 +164,7 @@ compendiumRouter.get("*", async (req, res) => {
       }
     });
   } catch (err) {
+    console.error('[Compendium Route] Error:', err);
     res.status(500).render("partials/500", { 
       layout: "index", 
       pathname: req.path 
@@ -165,8 +172,21 @@ compendiumRouter.get("*", async (req, res) => {
   }
 });
 
-// Apply compendium router with subdomain check
-app.use(isCompendiumSubdomain, compendiumRouter);
+// Apply compendium router only for compendium subdomain - MUST be before main routes
+const compendiumMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const hostname = req.hostname || req.get('host')?.split(':')[0] || '';
+  console.log(`[Compendium Middleware] hostname: ${hostname}, path: ${req.path}`);
+  
+  if (!hostname.includes('compendium')) {
+    console.log('[Compendium Middleware] Not a compendium subdomain, skipping');
+    return next();
+  }
+  
+  console.log('[Compendium Middleware] Is compendium subdomain, routing');
+  compendiumRouter(req, res, next);
+};
+
+app.use(compendiumMiddleware);
 
 /**
  *  MAIN DOMAIN ROUTING
@@ -341,6 +361,8 @@ app.get("/api/moon/detail/:id", checkApiKey, async (req, res) => {
 // POST /api/moon/publish - Publish new data
 app.post("/api/moon/publish", checkApiKey, async (req, res) => {
   try {
+    console.log('Received publish request with body:', req.body);
+
     const body:MoonItem = req.body;
 
     const idParam = req.params.id;
