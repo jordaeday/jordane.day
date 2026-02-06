@@ -55,8 +55,8 @@ const marked = new Marked(
  */
 // API Key middleware
 const checkApiKey = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const apiKey = req.headers['x-api-key'];
-  const apiSecret = req.headers['x-api-secret'];
+  const apiKey = req.headers['api-key'];
+  const apiSecret = req.headers['api-secret'];
   const expectedKey = process.env.MOON_API_KEY;
   const expectedSecret = process.env.MOON_API_SECRET;
   
@@ -388,6 +388,7 @@ app.post("/api/moon/publish", checkApiKey, async (req, res) => {
 // POST /api/moon/publish/:id - Republish/update existing data
 app.post("/api/moon/publish/:id", checkApiKey, async (req, res) => {
   try {
+    console.log('Received republish request with body:', req.body);
     const id = Number(req.params.id);
     const { name, path, metadata, content, attachments } = req.body;
     
