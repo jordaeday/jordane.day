@@ -19,7 +19,7 @@ import { calc_bk } from "./bouba-kiki/bouba-kiki";
 import csvParser from "csv-parser";
 import fetch from "node-fetch";
 import { MoonItem } from "./compendium/moon-src/types";
-import { publishItem, getItem, unpublishItem } from "./compendium/moon-src/storage";
+import { publishItem, getItem, unpublishItem, getItemByPath } from "./compendium/moon-src/storage";
 
 const app = express();
 const port = 3000;
@@ -136,11 +136,8 @@ compendiumRouter.get("*", async (req, res) => {
       requestPath = 'index';
     }
     
-    // Convert path to ID
-    const id = pathToId(requestPath);
-    
     // Load the published data
-    const data = await loadPublishedData(id);
+    const data = await getItemByPath(requestPath);
     
     // Data not found
     if (!data) {
@@ -369,7 +366,7 @@ app.post("/api/moon/publish", checkApiKey, async (req, res) => {
 // POST /api/moon/publish/:id - Republish/update existing data
 app.post("/api/moon/publish/:id", checkApiKey, async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = Number(req.params.id);
     const { name, path, metadata, content, attachments } = req.body;
     
     // Validate required fields
@@ -381,7 +378,8 @@ app.post("/api/moon/publish/:id", checkApiKey, async (req, res) => {
     
     // Save/update data
     const publishData = { name, path, metadata, content, attachments: attachments || {} };
-    await savePublishedData(id, publishData);
+    await unpublishItem(id); // Unpublish existing data first (if exists)
+    await publishItem(id, publishData);
     
     res.json({ id, success: true });
   } catch (err) {
@@ -393,16 +391,16 @@ app.post("/api/moon/publish/:id", checkApiKey, async (req, res) => {
 // POST /api/moon/unpublish/:id - Remove published item
 app.post("/api/moon/unpublish/:id", checkApiKey, async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = Number(req.params.id);
     
     // Check if item exists
-    const existing = await loadPublishedData(id);
+    const existing = await getItem(id);
     if (!existing) {
       return res.status(404).json({ error: 'Not found' });
     }
     
     // Delete data
-    await deletePublishedData(id);
+    await unpublishItem(id);
     
     // Return with null id per spec
     res.json({ id: null, success: true });
