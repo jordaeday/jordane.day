@@ -9,6 +9,7 @@ import hljs from 'highlight.js/lib/core';
 import x86asm from 'highlight.js/lib/languages/x86asm';
 import python from 'highlight.js/lib/languages/python';
 import plaintext from 'highlight.js/lib/languages/plaintext';
+import crypto from "crypto";
 
 hljs.registerLanguage('x86asm', x86asm as any);
 hljs.registerLanguage('python', python as any);
@@ -17,7 +18,8 @@ hljs.registerLanguage('plaintext', plaintext as any);
 import { calc_bk } from "./bouba-kiki/bouba-kiki";
 import csvParser from "csv-parser";
 import fetch from "node-fetch";
-import { processAttachments } from "./compendium/process-data";
+import { MoonItem } from "./compendium/moon-src/types";
+import { publishItem, getItem, unpublishItem } from "./compendium/moon-src/storage";
 
 const app = express();
 const port = 3000;
@@ -43,28 +45,36 @@ const marked = new Marked(
 /**
  *  MOON SERVER UTILITIES
  */
-
-// Convert path to ID (e.g., "folder/doc.md" -> "folder-doc")
-const pathToId = (path: string): string => {
-  return path
-    .replace(/\.md$/i, '') // Remove .md extension
-    .replace(/\//g, '-')    // Replace slashes with dashes
-    .replace(/[^a-zA-Z0-9-_]/g, '-') // Replace special chars with dashes
-    .replace(/-+/g, '-')    // Collapse multiple dashes
-    .replace(/^-|-$/g, ''); // Remove leading/trailing dashes
-};
-
 // API Key middleware
 const checkApiKey = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const apiKey = req.headers['x-api-key'];
+  const apiSecret = req.headers['x-api-secret'];
   const expectedKey = process.env.MOON_API_KEY;
+  const expectedSecret = process.env.MOON_API_SECRET;
   
-  if (!expectedKey) {
-    return res.status(500).json({ error: 'Server configuration error: API key not set' });
+  if (!expectedKey || !expectedSecret) {
+    return res.status(500).json({ error: 'Server configuration error: API credentials not set' });
+  }
+
+  if (!apiKey || !apiSecret) {
+    return res.status(401).json({ error: 'Unauthorized: API key and secret required' });
   }
   
-  if (!apiKey || apiKey !== expectedKey) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid or missing API key' });
+  const keyBuf = Buffer.from(Array.isArray(apiKey) ? apiKey[0] : (apiKey ?? ""));
+  const secretBuf = Buffer.from(Array.isArray(apiSecret) ? apiSecret[0] : (apiSecret ?? ""));
+  const expectedKeyBuf = Buffer.from(expectedKey);
+  const expectedSecretBuf = Buffer.from(expectedSecret);
+
+  if (keyBuf.length !== expectedKeyBuf.length ||
+        secretBuf.length !== expectedSecretBuf.length) {
+    return false;
+  }
+
+  const keyMatch = crypto.timingSafeEqual(keyBuf, expectedKeyBuf);
+  const secretMatch = crypto.timingSafeEqual(secretBuf, expectedSecretBuf);
+
+  if (!keyMatch || !secretMatch) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid API key or secret' });
   }
   
   next();
@@ -73,55 +83,6 @@ const checkApiKey = (req: express.Request, res: express.Response, next: express.
 // File storage functions
 const COMPENDIUM_DATA_DIR = './compendium/data';
 const COMPENDIUM_ATTACHMENTS_DIR = './compendium/attachments';
-
-const savePublishedData = async (id: string, data: any): Promise<void> => {
-  // Extract attachments if present
-  if (data.attachments && Object.keys(data.attachments).length > 0) {
-    const storedAttachments: Record<string,{ id: string; size: number }> = {};
-
-    for (const [filename, base64Data] of Object.entries(data.attachments)) {
-      const attachmentId = await processAttachments(base64Data as string);
-      storedAttachments[filename] = attachmentId;
-    }
-
-    // Replace raw attachments with ID references
-    data.attachments = storedAttachments;
-  }
-
-  const filePath = path.join(COMPENDIUM_DATA_DIR, `${id}.json`);
-  await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
-
-};
-
-const loadPublishedData = async (id: string): Promise<any | null> => {
-  try {
-    const filePath = `${COMPENDIUM_DATA_DIR}/${id}.json`;
-    const content = await fs.promises.readFile(filePath, 'utf-8');
-    return JSON.parse(content);
-  } catch (err) {
-    return null;
-  }
-};
-
-const deletePublishedData = async (id: string): Promise<void> => {
-  const filePath = `${COMPENDIUM_DATA_DIR}/${id}.json`;
-  const attachmentDir = `${COMPENDIUM_ATTACHMENTS_DIR}/${id}`;
-  
-  // Delete JSON file
-  try {
-    await fs.promises.unlink(filePath);
-  } catch (err) {
-    // Ignore if file doesn't exist
-  }
-  
-  // Delete attachments directory
-  try {
-    await fs.promises.rm(attachmentDir, { recursive: true, force: true });
-  } catch (err) {
-    // Ignore if directory doesn't exist
-  }
-};
 
 /**
  *  TEMPLATING ENGINE SETUP
@@ -366,14 +327,14 @@ app.get("/projects/bouba-kiki/get", async (req, res) => {
 // GET /api/moon/detail/:id - Get published data by ID
 app.get("/api/moon/detail/:id", checkApiKey, async (req, res) => {
   try {
-    const id = req.params.id;
-    const data = await loadPublishedData(id);
+    const id = Number(req.params.id);
+    const item = getItem(id);
     
-    if (!data) {
+    if (!item) {
       return res.status(404).json({ error: 'Not found' });
     }
     
-    res.json(data);
+    res.json(item);
   } catch (err) {
     console.error('Error getting detail:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -383,31 +344,22 @@ app.get("/api/moon/detail/:id", checkApiKey, async (req, res) => {
 // POST /api/moon/publish - Publish new data
 app.post("/api/moon/publish", checkApiKey, async (req, res) => {
   try {
-    const { name, path, metadata, content, attachments } = req.body;
+    const body:MoonItem = req.body;
+
+    const idParam = req.params.id;
+    const id = idParam ? Number(idParam) : undefined;
     
     // Validate required fields
-    if (!name || !path || !metadata || content === undefined) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: name, path, metadata, content' 
+    if (!body.name || !body.path || body.content === undefined) {
+      return res.status(400).json({
+        error: "Missing required fields: name, path, content",
       });
     }
     
     // Generate ID from path
-    const id = pathToId(path);
+    const newId = publishItem(id, body);
     
-    // Check if ID already exists
-    const existing = await loadPublishedData(id);
-    if (existing) {
-      return res.status(409).json({ 
-        error: 'Item already exists. Use POST /api/moon/publish/:id to update.' 
-      });
-    }
-    
-    // Save data
-    const publishData = { name, path, metadata, content, attachments: attachments || {} };
-    await savePublishedData(id, publishData);
-    
-    res.json({ id, success: true });
+    res.json({ id: newId });
   } catch (err) {
     console.error('Error publishing:', err);
     res.status(500).json({ error: 'Internal server error' });
