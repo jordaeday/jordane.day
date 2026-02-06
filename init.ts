@@ -32,12 +32,12 @@ app.use(express.json({ limit: '50mb' })); // Increase limit for base64 attachmen
 
 let visitCounter = 0;
 
-// Log all incoming requests [debug]
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
-  //console.log(req.headers);
-  next();
-});
+// // Log all incoming requests [debug]
+// app.use((req, res, next) => {
+//   console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+//   //console.log(req.headers);
+//   next();
+// });
 
 const marked = new Marked(
   markedHighlight({
@@ -53,7 +53,7 @@ const marked = new Marked(
 /**
  *  MOON SERVER UTILITIES
  */
-// API Key middleware
+// API Key authentication middleware
 const checkApiKey = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const apiKey = req.headers['api-key'];
   const apiSecret = req.headers['api-secret'];
@@ -87,10 +87,6 @@ const checkApiKey = (req: express.Request, res: express.Response, next: express.
   
   next();
 };
-
-// File storage functions
-const COMPENDIUM_DATA_DIR = './compendium/data';
-const COMPENDIUM_ATTACHMENTS_DIR = './compendium/attachments';
 
 /**
  *  TEMPLATING ENGINE SETUP
@@ -132,21 +128,13 @@ compendiumRouter.get("*", async (req, res) => {
       requestPath = 'index';
     }
 
-    console.log(`[Compendium Route] Request path: ${req.path}`);
-    console.log(`[Compendium Route] Request path (no slash): ${requestPath}`);
-
     const logicalPath = publicPathToLogicalPath(requestPath);
-    
-    console.log(`[Compendium Route] Logical path: ${logicalPath}`);
-    
+        
     // Load the published data
     const data = await getItemByPath(logicalPath);
-
-    console.log(`[Compendium Route] Data result:`, data ? 'found' : 'not found');
     
     // Data not found
     if (!data) {
-      console.warn(`[Compendium Route] No data found for path: ${requestPath} (logical: ${logicalPath})`);
       return res.status(404).render("partials/404", { 
         layout: "index", 
         pathname: req.path 
@@ -164,7 +152,6 @@ compendiumRouter.get("*", async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('[Compendium Route] Error:', err);
     res.status(500).render("partials/500", { 
       layout: "index", 
       pathname: req.path 
@@ -175,14 +162,12 @@ compendiumRouter.get("*", async (req, res) => {
 // Apply compendium router only for compendium subdomain - MUST be before main routes
 const compendiumMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const hostname = req.hostname || req.get('host')?.split(':')[0] || '';
-  console.log(`[Compendium Middleware] hostname: ${hostname}, path: ${req.path}`);
   
   if (!hostname.includes('compendium')) {
-    console.log('[Compendium Middleware] Not a compendium subdomain, skipping');
     return next();
   }
   
-  console.log('[Compendium Middleware] Is compendium subdomain, routing');
+  // If it's compendium subdomain, use the compendium router
   compendiumRouter(req, res, next);
 };
 
@@ -234,7 +219,6 @@ app.get("/", (req, res) => {
 
 app.get("/projects", async (req, res) => {
   let projects = await renderCards("./projects/");
-  //console.log(projects);
   res.render("partials/projects", {
     layout: "index", 
     pathname: req.path,
@@ -267,7 +251,6 @@ app.get("/public/:file", (req, res) => {
 app.get("/friends", async (req, res) => {
   try {
     const badges = await parseBadgesCSV("./public/badges/badges.csv");
-    //console.log(badges);
     res.render("partials/friends", { 
       layout: "index", 
       pathname: req.path,
@@ -280,7 +263,6 @@ app.get("/friends", async (req, res) => {
 
 app.get("/projects/:project", (req, res) => {
   let page = "./projects/" + req.params.project + ".md";
-  //console.log(page);
   try {
     res.render("partials/project-page", { 
       layout: "index",
@@ -295,7 +277,6 @@ app.get("/projects/:project", (req, res) => {
 
 app.get("/blog/:post", (req, res) => {
   let page = "./blog/" + req.params.post + ".md";
-  //console.log(page);
   try {
     res.render("partials/blog-post", { 
       layout: "index",
@@ -361,8 +342,6 @@ app.get("/api/moon/detail/:id", checkApiKey, async (req, res) => {
 // POST /api/moon/publish - Publish new data
 app.post("/api/moon/publish", checkApiKey, async (req, res) => {
   try {
-    console.log('Received publish request with body:', req.body);
-
     const body:MoonItem = req.body;
 
     const idParam = req.params.id;
@@ -388,7 +367,6 @@ app.post("/api/moon/publish", checkApiKey, async (req, res) => {
 // POST /api/moon/publish/:id - Republish/update existing data
 app.post("/api/moon/publish/:id", checkApiKey, async (req, res) => {
   try {
-    console.log('Received republish request with body:', req.body);
     const id = Number(req.params.id);
     const { name, path, metadata, content, attachments } = req.body;
     

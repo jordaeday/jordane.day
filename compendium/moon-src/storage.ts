@@ -8,7 +8,7 @@ const INDEX_FILE = path.join(ROOT_DIR, "index.json");
 
 interface Index {
   nextId: number;
-  items: Record<number, string>; // id → absolute item folder
+  items: Record<number, string>;
 }
 
 function loadIndex(): Index {
