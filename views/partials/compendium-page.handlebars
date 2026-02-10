@@ -1,0 +1,16 @@
+<div id="page-title">
+    {{page.title}}
+</div>
+<div id="page-content">
+    {{{mdToHTML page.body}}}
+    {{#if page.metadata}}
+        <div id="page-metadata" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.9em; opacity: 0.8;">
+            {{#if page.metadata.category}}
+                <div><strong>Category:</strong> {{page.metadata.category}}</div>
+            {{/if}}
+            {{#if page.metadata.tags}}
+                <div><strong>Tags:</strong> {{#each page.metadata.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</div>
+            {{/if}}
+        </div>
+    {{/if}}
+</div>
