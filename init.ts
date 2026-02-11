@@ -240,11 +240,14 @@ compendiumRouter.get("*", async (req, res) => {
     // Load the published data
     const data = await getItemByPath(logicalPath);
     
+    // Decode the pathname for display (converts %20 to space, etc)
+    const decodedPathname = decodeURIComponent(req.path);
+    
     // Data not found
     if (!data) {
       return res.status(404).render("partials/404", { 
         layout: "index", 
-        pathname: req.path 
+        pathname: decodedPathname 
       });
     }
     
@@ -254,7 +257,7 @@ compendiumRouter.get("*", async (req, res) => {
     // Render using compendium-page template
     res.render("partials/compendium-page", { 
       layout: "compendium",
-      pathname: req.path,
+      pathname: decodedPathname,
       sidebarStructure,
       page: {
         title: data.name,
@@ -265,7 +268,7 @@ compendiumRouter.get("*", async (req, res) => {
   } catch (err) {
     res.status(500).render("partials/500", { 
       layout: "index", 
-      pathname: req.path 
+      pathname: decodeURIComponent(req.path) 
     });
   }
 });

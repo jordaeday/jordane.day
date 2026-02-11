@@ -1,6 +1,7 @@
 {
-  "nextId": 2,
+  "nextId": 4,
   "items": {
-    "1": "data/introduction.json"
+    "1": "data/introduction.json",
+    "3": "data/artificial intelligence/syllabus.json"
   }
 }
