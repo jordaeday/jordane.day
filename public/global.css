@@ -165,7 +165,6 @@ code {
     padding: 5px;
     font-weight: normal;
     color: var(--link);
-    border-top: 1px solid var(--bar);
     cursor: pointer;
     user-select: none;
     display: flex;
