@@ -1,0 +1,18 @@
+{{#if isFile}}
+  <div class="sidebar-item">
+    {{#if redirectTo}}
+      <a href="{{redirectTo}}" target="_blank">{{name}}</a>
+    {{else}}
+      <a href="/{{path}}">{{name}}</a>
+    {{/if}}
+  </div>
+{{else}}
+  <div class="sidebar-folder">
+    <div class="sidebar-folder-name">{{name}}</div>
+    <div class="sidebar-folder-items">
+      {{#each children}}
+        {{>sidebar-item}}
+      {{/each}}
+    </div>
+  </div>
+{{/if}}
