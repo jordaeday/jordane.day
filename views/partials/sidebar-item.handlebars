@@ -7,7 +7,7 @@
     {{/if}}
   </div>
 {{else}}
-  <div class="sidebar-folder collapsed">
+  <div class="sidebar-folder {{#unless expanded}}collapsed{{/unless}}">
     <div class="sidebar-folder-name" onclick="this.parentElement.classList.toggle('collapsed')">
       <span>{{name}}</span>
       <span class="folder-toggle">▼</span>

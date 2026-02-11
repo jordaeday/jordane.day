@@ -189,6 +189,8 @@ code {
     max-height: 1000px;
     overflow: hidden;
     transition: max-height 0.2s ease-out;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .sidebar-folder.collapsed .sidebar-folder-items {

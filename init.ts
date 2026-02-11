@@ -62,14 +62,20 @@ interface SidebarItem {
   children?: SidebarItem[];
   isFile: boolean;
   priority?: number;
+  expanded?: boolean;
 }
 
-const generateCompendiumSidebar = (): SidebarItem[] => {
+const generateCompendiumSidebar = (currentPath: string = ''): SidebarItem[] => {
   const compendiumDataDir = './compendium/data';
   
   if (!fs.existsSync(compendiumDataDir)) {
     return [];
   }
+
+  // Helper function to check if a path is contained within a folder
+  const pathContainedIn = (folderPath: string, targetPath: string): boolean => {
+    return targetPath.startsWith(folderPath + '/');
+  };
 
   const buildTree = (dir: string, basePath = '', isTopLevel = true): SidebarItem[] => {
     const items: SidebarItem[] = [];
@@ -104,11 +110,15 @@ const generateCompendiumSidebar = (): SidebarItem[] => {
         if (entry.isDirectory()) {
           const children = buildTree(fullPath, relativePath, false);
           if (children.length > 0) {
+            // Check if current path is within this folder
+            const shouldBeExpanded = pathContainedIn(relativePath, currentPath);
+            
             items.push({
               name: entry.name,
               children,
               isFile: false,
-              priority: 2
+              priority: 2,
+              expanded: shouldBeExpanded
             });
           }
         } else if (entry.name.endsWith('.json')) {
@@ -239,7 +249,7 @@ compendiumRouter.get("*", async (req, res) => {
     }
     
     // Generate sidebar structure and render
-    const sidebarStructure = generateCompendiumSidebar();
+    const sidebarStructure = generateCompendiumSidebar(requestPath);
     
     // Render using compendium-page template
     res.render("partials/compendium-page", { 
