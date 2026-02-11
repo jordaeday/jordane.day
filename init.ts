@@ -51,6 +51,113 @@ const marked = new Marked(
 );
 
 /**
+ *  UTILITY FUNCTIONS
+ */
+
+// Generate sidebar structure from compendium/data directory
+interface SidebarItem {
+  name: string;
+  path?: string;
+  redirectTo?: string;
+  children?: SidebarItem[];
+  isFile: boolean;
+  priority?: number;
+  expanded?: boolean;
+}
+
+const generateCompendiumSidebar = (currentPath: string = ''): SidebarItem[] => {
+  const compendiumDataDir = './compendium/data';
+  
+  if (!fs.existsSync(compendiumDataDir)) {
+    return [];
+  }
+
+  // Helper function to check if a path is contained within a folder
+  const pathContainedIn = (folderPath: string, targetPath: string): boolean => {
+    return targetPath.startsWith(folderPath + '/');
+  };
+
+  const buildTree = (dir: string, basePath = '', isTopLevel = true): SidebarItem[] => {
+    const items: SidebarItem[] = [];
+
+    // Add sidebar item that is a link back to the main website (only at top level, priority 0 = first)
+    if (isTopLevel) {
+      items.push({
+        name: '< back to main site',
+        redirectTo: 'https://jordane.day',
+        isFile: true,
+        priority: 0
+       });
+    }
+    
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      
+      // Sort: folders first, then files
+      entries.sort((a, b) => {
+        if (a.isDirectory() !== b.isDirectory()) {
+          return a.isDirectory() ? -1 : 1;
+        }
+        return a.name.localeCompare(b.name);
+      });
+
+      for (const entry of entries) {
+        if (entry.name.startsWith('.')) continue; // Skip hidden files
+        
+        const fullPath = path.join(dir, entry.name);
+        const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
+
+        if (entry.isDirectory()) {
+          const children = buildTree(fullPath, relativePath, false);
+          if (children.length > 0) {
+            // Check if current path is within this folder
+            const shouldBeExpanded = pathContainedIn(relativePath, currentPath);
+            
+            items.push({
+              name: entry.name,
+              children,
+              isFile: false,
+              priority: 2,
+              expanded: shouldBeExpanded
+            });
+          }
+        } else if (entry.name.endsWith('.json')) {
+          // Remove .json extension for display
+          const displayName = entry.name.replace(/\.json$/, '');
+          const filePath = relativePath.replace(/\.json$/, '');
+          
+          // introduction gets priority 1, other files get priority 3
+          const itemPriority = displayName === 'introduction' ? 1 : 3;
+          
+          items.push({
+            name: displayName,
+            path: filePath,
+            isFile: true,
+            priority: itemPriority
+          });
+        }
+      }
+    } catch (err) {
+      console.error(`Error reading directory ${dir}:`, err);
+    }
+
+    // Sort by priority, then by name
+    items.sort((a, b) => {
+      const priorityA = a.priority ?? 999;
+      const priorityB = b.priority ?? 999;
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+      return a.name.localeCompare(b.name);
+    });
+
+    return items;
+  };
+
+  return buildTree(compendiumDataDir);
+};
+
+/**
  *  MOON SERVER UTILITIES
  */
 // API Key authentication middleware
@@ -125,7 +232,7 @@ compendiumRouter.get("*", async (req, res) => {
     // Remove leading slash and .md extension if present
     let requestPath = req.path.slice(1);
     if (!requestPath || requestPath === '') {
-      requestPath = 'index';
+      return res.redirect('/introduction');
     }
 
     const logicalPath = publicPathToLogicalPath(requestPath);
@@ -141,10 +248,14 @@ compendiumRouter.get("*", async (req, res) => {
       });
     }
     
+    // Generate sidebar structure and render
+    const sidebarStructure = generateCompendiumSidebar(requestPath);
+    
     // Render using compendium-page template
     res.render("partials/compendium-page", { 
-      layout: "index",
+      layout: "compendium",
       pathname: req.path,
+      sidebarStructure,
       page: {
         title: data.name,
         body: data.content,

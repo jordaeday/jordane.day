@@ -1,0 +1,45 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/global.css">
+        <link rel='stylesheet' href='//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.css'>
+        <!-- Highlight.js theme for syntax highlighting -->
+        <link rel="stylesheet" href="//unpkg.com/@catppuccin/highlightjs@1.0.1/css/catppuccin-mocha.css">          <style>
+        </style>
+        <title>jordane.day</title>
+        <link rel="icon" type="image/x-icon" href="/favicon.gif">
+    </head>
+    <body>
+        <div class = "window">
+            <div class = "bar">
+                <div id = "active-text"> {{{pathname}}} </div>
+                <div id = "window-buttons">
+                    <div style = "color:rgb(243 139 168)">■</div>
+                    <div style = "color:rgb(249 226 175)">■</div>
+                    <div style = "color:rgb(166 227 161)">■</div>
+                </div>
+            </div>
+            <div class = "content">
+                <div class = "sidebar">
+                    <div id = "side-intro">
+                        <picture style="padding:0">
+                            <source srcset="/piccrew.avif" type="image/avif" style="padding:0">
+                            <source srcset="/piccrew.webp" type="image/webp" style="padding:0">
+                            <img src="/piccrew.png" alt="a piccrew profile photo of me" width="100" height="100">
+                        </picture>
+                        <div id = "intro-text">
+                            jordan day
+                            she/her
+                        </div>
+                    </div>
+                    {{#each sidebarStructure}}
+                      {{>sidebar-item}}
+                    {{/each}}
+                </div>
+                <div class = "main">
+                    {{{body}}}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
