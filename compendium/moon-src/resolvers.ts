@@ -1,7 +1,10 @@
 const COMPENDIUM_CONTENT_PREFIX = "compendium/data";
 
 export function publicPathToLogicalPath(urlPath: string): string {
-  const cleaned = urlPath
+  // Decode URL-encoded characters (like %20 for spaces)
+  const decodedPath = decodeURIComponent(urlPath);
+  
+  const cleaned = decodedPath
     .replace(/^\/+/, "")
     .replace(/\.md$/, "")
     .replace(/\.json$/, "")
