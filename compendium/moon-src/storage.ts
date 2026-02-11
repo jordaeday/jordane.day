@@ -58,9 +58,10 @@ export function publishItem(id: number | undefined, item: MoonItem): number {
     }
   }
 
-  // Store the path to the JSON file in the index
+  // Store the RELATIVE path to the JSON file in the index
   const jsonPath = item.path.endsWith('.json') ? fullPath : fullPath.replace(/\.[^.]+$/, '.json');
-  index.items[finalId] = jsonPath;
+  const relativePath = path.relative(ROOT_DIR, jsonPath);
+  index.items[finalId] = relativePath;
   saveIndex(index);
 
   return finalId;
@@ -68,8 +69,12 @@ export function publishItem(id: number | undefined, item: MoonItem): number {
 
 export function getItem(id: number): StoredMoonItem | null {
   const index = loadIndex();
-  const fullPath = index.items[id];
-  if (!fullPath || !fs.existsSync(fullPath)) return null;
+  const relativePath = index.items[id];
+  if (!relativePath) return null;
+  
+  // Convert relative path to absolute
+  const fullPath = path.join(ROOT_DIR, relativePath);
+  if (!fs.existsSync(fullPath)) return null;
 
   // Read the JSON file
   const jsonContent = fs.readFileSync(fullPath, "utf-8");
@@ -99,8 +104,11 @@ export function getItem(id: number): StoredMoonItem | null {
 
 export function unpublishItem(id: number): boolean {
   const index = loadIndex();
-  const fullPath = index.items[id];
-  if (!fullPath) return false;
+  const relativePath = index.items[id];
+  if (!relativePath) return false;
+  
+  // Convert relative path to absolute
+  const fullPath = path.join(ROOT_DIR, relativePath);
 
   // Delete the JSON file
   if (fs.existsSync(fullPath)) {
