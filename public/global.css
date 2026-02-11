@@ -155,3 +155,20 @@ code {
     margin: 1em 0;
     width: calc(100% - 30px); /* Account for main padding */
 }
+
+/* Sidebar folder styling */
+.sidebar-folder {
+    padding: 0;
+}
+
+.sidebar-folder-name {
+    padding: 5px;
+    font-weight: bold;
+    color: var(--link);
+    border-top: 1px solid var(--bar);
+}
+
+.sidebar-folder-items {
+    padding-left: 10px;
+    border-left: 1px solid var(--bar);
+}
