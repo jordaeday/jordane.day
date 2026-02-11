@@ -7,8 +7,11 @@
     {{/if}}
   </div>
 {{else}}
-  <div class="sidebar-folder">
-    <div class="sidebar-folder-name">{{name}}</div>
+  <div class="sidebar-folder collapsed">
+    <div class="sidebar-folder-name" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>{{name}}</span>
+      <span class="folder-toggle">▼</span>
+    </div>
     <div class="sidebar-folder-items">
       {{#each children}}
         {{>sidebar-item}}

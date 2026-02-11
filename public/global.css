@@ -163,12 +163,40 @@ code {
 
 .sidebar-folder-name {
     padding: 5px;
-    font-weight: bold;
+    font-weight: normal;
     color: var(--link);
     border-top: 1px solid var(--bar);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-folder-name:hover {
+    background-color: var(--bar);
+}
+
+.folder-toggle {
+    display: inline-block;
+    width: 1em;
+    text-align: center;
 }
 
 .sidebar-folder-items {
     padding-left: 10px;
     border-left: 1px solid var(--bar);
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
+.sidebar-folder.collapsed .sidebar-folder-items {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.sidebar-folder.collapsed .folder-toggle {
+    transform: rotate(-90deg);
+    display: inline-block;
 }
