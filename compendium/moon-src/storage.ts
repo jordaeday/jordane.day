@@ -133,14 +133,14 @@ export function getItemByPath(requestPath: string) {
     ? requestPath
     : `${requestPath}.json`;
 
-  // Special case for index.json to serve the root index data
-  if (normalized === "index.json") {
-    const content = fs.readFileSync('compendium/data/index.json', "utf-8");
-    return JSON.parse(content);
-  }
+  // If normalized starts with compendium/, remove it for matching against index paths
+  const prefix = "compendium/";
+  const normalizedPath = normalized.startsWith(prefix)
+      ? normalized.slice(prefix.length)
+      : normalized;
 
   for (const [id, fullPath] of Object.entries(index.items)) {
-    if (fullPath.endsWith(normalized)) {
+    if (fullPath.endsWith(normalizedPath)) {
       return getItem(Number(id));
     }
   }
