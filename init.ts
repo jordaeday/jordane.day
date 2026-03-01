@@ -306,7 +306,7 @@ const parseBadgesCSV = (filePath: string): Promise<any[]> => {
 // Function to fetch the webring data
 const fetchWebringData = async (id: string) => {
   try {
-    const response = await fetch(`https://umaring.mkr.cx/${id}`);
+    const response = await fetch(`https://umaring.github.io/${id}.json`);
     const data = await response.json();
     webringData = data;
   } catch (err) {
