@@ -166,4 +166,5 @@ At a high level, the flow of the request is as follows:
 3. Bob sends the fake cert to Alice, who trusts the cert.
 4. Bob makes his own connection to Charlie with TLS.
 5. Bob decrypts Alice's requests, logs them, reencrypts them, and makes the requests himself, passing the answers along to Alice, signed with BobProxyCA.
+
 Neither Alice nor Charlie know they aren't talking to each other directly - they think they are on their own connection, but Bob acts as a man-in-the-middle, which is particularly useful in enterprise systems for many reasons, including malware detection, data loss prevention, compliance, and more. 
