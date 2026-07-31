@@ -1,9 +1,9 @@
 :root {
-    --background: #11111b;
-    --window: #1e1e2e;
-    --text: #cdd6f4;
-    --link: #f5c2e7;
-    --bar: #313244;
+   --background: #1e1b2b;
+    --window: #2b273d;
+    --text: #fef8f9;
+    --link: #1db2cb;
+    --bar: #332F44;
 }
 
 html {
@@ -60,6 +60,36 @@ a:not(.sidebar-item a):not(#page-title a) {
     padding: 5px;
     display: flex;
     flex-direction: row;
+}
+.profile-photo {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(100%);
+    padding: 0;
+}
+.profile-picture {
+    position: relative;
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    isolation: isolate;
+}
+.profile-picture::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--link);
+    mix-blend-mode: color;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    margin: 5px;
+    filter: brightness(0.5);
+}
+.profile-picture:hover::after {
+    opacity: 0.85;
 }
 #window-buttons {
     display: flex;
