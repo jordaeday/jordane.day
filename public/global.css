@@ -71,6 +71,7 @@ a:not(.sidebar-item a):not(#page-title a) {
 }
 .profile-picture {
     position: relative;
+    display: inline-block;
     width: 100px;
     height: 100px;
     isolation: isolate;
