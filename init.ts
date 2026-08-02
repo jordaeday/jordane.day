@@ -375,19 +375,6 @@ app.get("/public/:file", (req, res) => {
   res.sendFile(__dirname + "/public/" + file);
 });
 
-app.get("/friends", async (req, res) => {
-  try {
-    const badges = await parseBadgesCSV("./public/badges/badges.csv");
-    res.render("partials/friends", { 
-      layout: "index", 
-      pathname: req.path,
-      badges: badges,
-    });
-  } catch (err) {
-    res.status(500).render("partials/500", { layout : "index", pathname: req.path });
-  }
-});
-
 app.get("/projects/:project", (req, res) => {
   let page = "./projects/" + req.params.project + ".md";
   try {
