@@ -6,25 +6,24 @@
     hello welcome to my website!!!!
 
     <div id = "top-projects">
-        <h3>latest projects:</h3>
+        <h3 style="margin-bottom: 10px;">latest projects:</h3>
         {{#each projects}}
             <a href="/projects/{{name}}">{{title}}</a> - {{subtitle}}
             <br>
         {{/each}}
     </div>
-    <br>
+    <br> <br>
 
     <div id = "top-posts">
-        <h3>latest blog posts:</h3>
+        <h3 style="margin-bottom: 10px;">latest blog posts:</h3>
         {{#each posts}}
             <div class="post">
                 <a href="/blog/{{name}}">{{title}}</a> - {{subtitle}}
                 <br>
             </div>
         {{/each}}
-    </div>
-    <br>
-    <br>
+    </div> 
+    <br> <br>
 
     <div id = "badges">
         {{#each badges}}
@@ -34,7 +33,8 @@
             </a>
         </class>
         {{/each}}
-    </div>
+    </div> 
+    <br>
 
     <div id = "umass-webring">
         <div>
