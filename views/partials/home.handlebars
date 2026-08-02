@@ -2,14 +2,40 @@
     home
 </div>
 <div id = "page-content">
-    Hiii! My name is Jordan Day, and I just graduated from the University of Massachusetts 
-    Amherst this December with a B.S. in Computer Science and a minor in Linguistics. I enjoy 
-    doing software development, web development, hackathons, and cybersecurity. I am currently 
-    looking for full time roles, and I am willing to relocate to make that happen! 
+
+    hello welcome to my website!!!!
+
+    <div id = "top-projects">
+        <h3 style="margin-bottom: 10px;">latest projects:</h3>
+        {{#each projects}}
+            <a href="/projects/{{name}}">{{title}}</a> - {{subtitle}}
+            <br>
+        {{/each}}
+    </div>
     <br>
-    Feel free to reach out to me through the contact page if you'd like to connect!
+
+    <div id = "top-posts">
+        <h3 style="margin-bottom: 10px;">latest blog posts:</h3>
+        {{#each posts}}
+            <div class="post">
+                <a href="/blog/{{name}}">{{title}}</a> - {{subtitle}}
+                <br>
+            </div>
+        {{/each}}
+    </div> 
+    <br> <br>
+
+    <div id = "badges">
+        {{#each badges}}
+        <class = "badge">
+            <a href="{{link}}" class="pixelated">
+                <img src="./badges/{{path}}" alt="{{alt}}">
+            </a>
+        </class>
+        {{/each}}
+    </div> 
     <br>
-    <br>
+
     <div id = "umass-webring">
         <div>
             <a href="{{webring.prev.url}}">{{webring.prev.name}}</a>

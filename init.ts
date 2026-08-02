@@ -322,12 +322,25 @@ setInterval(() => {
   fetchWebringData("jordan");
 }, 1000 * 60 * 5);
 
-app.get("/", (req, res) => {
+
+app.get("/", async (req, res) => {
+  let projects = await renderCards("./projects/");
+  let posts = await renderCards("./blog/");
+
+  const badges = await parseBadgesCSV("./public/badges/badges.csv");
+
   res.render("partials/home", { 
     layout: "index", 
     pathname: req.path, 
     visitCounter: visitCounter++,
-    webring: webringData
+    projects: projects.sort((a, b) => {
+      return parseInt(b.number) - parseInt(a.number);
+    }).slice(0, 3),
+    posts: posts.sort((a, b) => {
+      return parseInt(b.number) - parseInt(a.number);
+    }).slice(0, 3),
+    webring: webringData,
+    badges: badges
   });
 });
 
@@ -360,19 +373,6 @@ app.get("/contact", (req, res) => {
 app.get("/public/:file", (req, res) => {
   const file = req.params.file;
   res.sendFile(__dirname + "/public/" + file);
-});
-
-app.get("/friends", async (req, res) => {
-  try {
-    const badges = await parseBadgesCSV("./public/badges/badges.csv");
-    res.render("partials/friends", { 
-      layout: "index", 
-      pathname: req.path,
-      badges: badges,
-    });
-  } catch (err) {
-    res.status(500).render("partials/500", { layout : "index", pathname: req.path });
-  }
 });
 
 app.get("/projects/:project", (req, res) => {
