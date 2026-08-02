@@ -22,6 +22,17 @@
     </div>
     <br>
     <br>
+
+    <div id = "badges">
+        {{#each badges}}
+        <class = "badge">
+            <a href="{{link}}" class="pixelated">
+                <img src="./badges/{{path}}" alt="{{alt}}">
+            </a>
+        </class>
+        {{/each}}
+    </div>
+
     <div id = "umass-webring">
         <div>
             <a href="{{webring.prev.url}}">{{webring.prev.name}}</a>
