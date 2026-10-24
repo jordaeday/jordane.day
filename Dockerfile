@@ -2,7 +2,7 @@ FROM oven/bun:1.4.4
 
 WORKDIR /var/www/jordane.day
 
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 RUN bun install
 COPY . .
 
